@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Dictionaries\UsersRoles;
 use App\Http\Controllers\Controller;
+use App\Models\Store;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
@@ -31,22 +33,40 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $isAdminUserRole = Auth::user() && Auth::user()->users_role_id === UsersRoles::USER_ROLES['Admin'];
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $usersRoleId = 1;
+        if ($isAdminUserRole) {
+            $usersRoleId = 20;
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'users_role_id' => $usersRoleId,
         ]);
 
-        event(new Registered($user));
+        if (!$isAdminUserRole && $user) {
+             $store = Store::create([
+                 'store_id' => $user->id,
+                 'name_store' => 'New created Store',
+                 'description' => 'Store was created as empty Store. Please change Name and Description',
+            ]);
+        }
 
-        Auth::login($user);
+        if (!$isAdminUserRole) {
+            event(new Registered($user));
+            Auth::login($user);
+        } else {
+            return redirect()->route('admin.users');
+        }
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect(RouteServiceProvider::chooseHomepageByRole());
     }
 }

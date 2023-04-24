@@ -1,10 +1,17 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+
+defineProps({
+    isAdminCreate: {
+        type: Boolean,
+        default: false,
+    },
+});
 
 const form = useForm({
     name: '',
@@ -21,10 +28,13 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Register" />
+    <AuthenticatedLayout>
+        <Head>
+            <title v-if="isAdminCreate">New admin create</title>
+            <title v-else>Register</title>
+        </Head>
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" class="store-register-user__form">
             <div>
                 <InputLabel for="name" value="Full name" />
 
@@ -50,7 +60,7 @@ const submit = () => {
                     class="mt-1 block w-full"
                     v-model="form.email"
                     required
-                    autocomplete="username"
+                    autocomplete="email"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
@@ -88,6 +98,7 @@ const submit = () => {
 
             <div class="flex items-center justify-end mt-4">
                 <Link
+                    v-if="!isAdminCreate"
                     :href="route('login')"
                     class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
@@ -99,5 +110,12 @@ const submit = () => {
                 </PrimaryButton>
             </div>
         </form>
-    </GuestLayout>
+    </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.store-register-user__form {
+    margin: 0 auto;
+    width: 400px;
+}
+</style>

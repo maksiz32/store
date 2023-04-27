@@ -19,7 +19,12 @@ export default {
     },
     computed: {
         categories() {
-            return this.$page.props.auth.user.categories || [] ;
+            let result = [];
+            if (this.$page.props.auth.user && this.$page.props.auth.user.users_role_id === 10) {
+                result = this.$page.props.auth.user.categories.filter(Categories => Categories.is_show_nav);
+            }
+
+            return result;
         }
     }
 }
@@ -33,15 +38,6 @@ export default {
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">
-                            <!-- Logo -->
-                            <div class="shrink-0 flex items-center">
-                                <Link :href="route('dashboard')">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
-                                </Link>
-                            </div>
-
                             <!-- Navigation Links -->
                             <div
                                 class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"
@@ -57,7 +53,6 @@ export default {
                                 v-if="isAuth"
                             >
                                 <NavLink
-                                    v-if="category.is_show_nav === 1"
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
                                 >
@@ -95,7 +90,8 @@ export default {
                                     </template>
 
                                     <template #content>
-                                        <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
+                                        <DropdownLink :href="route('categories')"> Edit Categories </DropdownLink>
+                                        <DropdownLink :href="route('store')"> Edit Products </DropdownLink>
                                         <DropdownLink
                                             v-if="isAdmin"
                                             :href="route('admin.users')"
@@ -107,10 +103,6 @@ export default {
                                             :href="route('admin.stores')"
                                         >
                                             Stores
-                                        </DropdownLink>
-                                        <v-divider></v-divider>
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
-                                            Log Out
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>

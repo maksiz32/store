@@ -17,7 +17,7 @@ return new class extends Migration
                 ->references('id')
                 ->on('users');
             $table->string('name_store');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

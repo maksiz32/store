@@ -26,6 +26,7 @@ Route::middleware('isAdmin')->group(function () {
     Route::get('/admin-panel', [UsersController::class, 'index']);
     Route::get('/users', [UsersController::class, 'index'])->name('admin.users');
     Route::get('/users/create', [UsersController::class, 'createAdmin'])->name('admin.create');
+    Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('user.delete');
 
     Route::get('/stores', [StoresController::class, 'index'])->name('admin.stores');
 });
@@ -42,15 +43,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // This route make redirect to user store
-    Route::get('/store', [StoresController::class, 'chooseStore']);
+    Route::get('/store', [StoresController::class, 'chooseStore'])->name('store');
     Route::get('/store/{client_id}', [StoresController::class, 'show'])->name('store.show');
 
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.add');
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('category.delete');
+    Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('category.update');
+
+    Route::post('/product', [ProductsController::class, 'store'])->name('product.add');
+    Route::put('/product/{product}', [ProductsController::class, 'update'])->name('product.update');
+    Route::post('/product/{product}', [ProductsController::class, 'imageDestroy'])->name('product.image-destroy');
+    Route::delete('/product/{product}', [ProductsController::class, 'destroy'])->name('product.delete');
     Route::get('/store/{client_id}/{category_id?}/{product_id}', [ProductsController::class, 'show'])
-        ->name('show.store');
-
-    Route::post('/category', [CategoryController::class, 'store'])->name('add.category');
-
-    Route::post('/product', [ProductsController::class, 'store'])->name('add.product');
+        ->name('product.show');
 });
 
 require __DIR__.'/auth.php';

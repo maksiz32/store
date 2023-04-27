@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,7 +27,7 @@ class UsersController extends Controller
     public function createAdmin()
     {
         return Inertia::render('Auth/Register', [
-            'isAdminCreate' => true,
+            'isAdminMode' => true,
         ]);
     }
 
@@ -62,11 +63,13 @@ class UsersController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user)
+    public function destroy(User $user): RedirectResponse
     {
-        //
+        if ($user->store()) {
+            $user->store()->delete();
+        }
+        $user->delete();
+
+        return redirect()->route('admin.users');
     }
 }

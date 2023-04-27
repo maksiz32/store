@@ -1,16 +1,24 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
-defineProps({
-    isAdminCreate: {
+const props = defineProps({
+    isAdminMode: {
         type: Boolean,
         default: false,
     },
+    closable: {
+        type: Boolean,
+        default: false,
+    },
+    isMustAdmin: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const form = useForm({
@@ -18,23 +26,35 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    users_role_id: 1,
 });
 
+const emit = defineEmits(['closeRegister']);
+
 const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
+    console.log(props.isAdminMode, props.isMustAdmin);
+    form.transform((data) => ({
+        ...data,
+        users_role_id: props.isAdminMode ? props.isMustAdmin ? 20 : 10 : 1,
+    })).post(route('register'), {
+        onFinish: () => {
+            form.reset();
+            if (props.closable) {
+                emit('closeRegister');
+            }
+        }
     });
 };
 </script>
 
 <template>
-    <AuthenticatedLayout>
+    <div class="store-form-register">
         <Head>
-            <title v-if="isAdminCreate">New admin create</title>
+            <title v-if="props.isAdminMode">Create users</title>
             <title v-else>Register</title>
         </Head>
 
-        <form @submit.prevent="submit" class="store-register-user__form">
+        <form @submit.prevent="submit" class="store-form-register-user__form">
             <div>
                 <InputLabel for="name" value="Full name" />
 
@@ -98,23 +118,37 @@ const submit = () => {
 
             <div class="flex items-center justify-end mt-4">
                 <Link
-                    v-if="!isAdminCreate"
+                    v-if="!props.isAdminMode"
                     :href="route('login')"
                     class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                     Already registered?
                 </Link>
 
-                <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                <SecondaryButton
+                    v-if="props.closable"
+                    @click="emit('closeRegister')"
+                    class="ml-6"
+                >
+                    Cancel
+                </SecondaryButton>
+                <PrimaryButton
+                    class="ml-4"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                >
                     Register
                 </PrimaryButton>
             </div>
         </form>
-    </AuthenticatedLayout>
+    </div>
 </template>
 
 <style scoped>
-.store-register-user__form {
+.store-form-register {
+    padding: 40px 0;
+}
+.store-form-register-user__form {
     margin: 0 auto;
     width: 400px;
 }

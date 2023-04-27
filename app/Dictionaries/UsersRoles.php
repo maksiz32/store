@@ -6,6 +6,7 @@ class UsersRoles
 {
     public const USER_ROLES = [
         'Admin' => 20,
-        'Client' => 1,
+        'Client' => 10,
+        'Customer' => 1,
     ];
 }

@@ -13,6 +13,10 @@ class UsersRoles extends Seeder
         DB::table('users_roles')->upsert([
             [
                 'id' => 1,
+                'name' => 'Customer',
+                'description' => null,
+            ], [
+                'id' => 10,
                 'name' => 'Client',
                 'description' => null,
             ], [

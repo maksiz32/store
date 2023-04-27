@@ -19,8 +19,9 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    private const HOME = '/store';
+    private const CLIENT_HOME = '/store';
     private const ADMIN_HOME = '/admin-panel';
+    private const HOME = '/';
 
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
@@ -46,6 +47,10 @@ class RouteServiceProvider extends ServiceProvider
         $userRole = Auth::user()->users_role_id;
         if ($userRole === UsersRoles::USER_ROLES['Admin']) {
             return self::ADMIN_HOME;
+        }
+
+        if ($userRole === UsersRoles::USER_ROLES['Client']) {
+            return self::CLIENT_HOME;
         }
 
         return self::HOME;

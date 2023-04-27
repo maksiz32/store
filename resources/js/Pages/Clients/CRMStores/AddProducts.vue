@@ -1,20 +1,19 @@
 <script setup>
-import {computed, reactive, ref} from "vue";
+import {ref, watch} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
-import axios from "axios";
 
 let dialog = ref(false);
 const storeId = usePage().props.auth.user.id;
-const emit = defineEmits(['addProductSuccess']);
+const emit = defineEmits(['eventSuccess']);
 const props = defineProps({
     categories: Array,
 });
-const selectedCategory = ref([]);
+let selectedCategory = ref(['']);
 const form = useForm({
-    image: null,
+    image: '',
     name: '',
     description: '',
     category_id: null,
@@ -22,38 +21,54 @@ const form = useForm({
     price: '',
     quantity: '',
 });
+let photo = ref(null);
 
 const closeModal = () => {
     dialog.value = false;
     form.reset();
 };
 
-const submit = () => {
-    if (form.image) {
-        const fileReader = new FileReader();
-        fileReader.onload = () => {
-            form.image = fileReader.result;
-        }
-        fileReader.readAsDataURL(form.image);
-    }
-    form.post(route('add.product'), {
-        onSuccess: () => {
-            emit('addProductSuccess', `Product was created`);
-        },
-        onFinish: () => {
-            form.reset();
-            dialog.value = false;
-        }
-    });
+const uploadPhoto = (data) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(data);
+
+    reader.onload = (e) => {
+        photo.value = e.target.result;
+    };
 };
 
-const chooseCategory = () => {
-    form.category_id = props.categories.filter(Cat => {
-        if (Cat.name === selectedCategory.value) {
-            return Cat.id;
+const submit = () => {
+    let _quantity = parseInt(form.quantity, 10);
+    form.transform((data) => ({
+            ...data,
+            category_id: selectedCategory.value,
+            image: photo.value,
+            quantity: _quantity < 0 ? 0 : _quantity,
+        })).post(route('product.add'), {
+            onSuccess: () => {
+                form.reset();
+                selectedCategory.value = [];
+                emit('eventSuccess', `Product was created`);
+            },
+            onError: (error) => {
+                console.warn(error);
+            },
+            onFinish: () => {
+                dialog.value = false;
+            }
         }
-    })
-}
+    );
+};
+
+watch(selectedCategory, () => {
+    if (selectedCategory.value.length) {
+        if (selectedCategory.value[0] === '') {
+            selectedCategory.value.splice(0, 1);
+        }
+    } else {
+        selectedCategory.value[0] = '';
+    }
+})
 </script>
 
 <template>
@@ -90,6 +105,7 @@ const chooseCategory = () => {
                                 required
                                 autofocus
                                 autocomplete="name"
+                                density="compact"
                             />
 
                             <InputError class="mt-2" :message="form.errors.name" />
@@ -103,6 +119,7 @@ const chooseCategory = () => {
                                 class="mt-1 block w-full"
                                 v-model="form.description"
                                 autocomplete="description"
+                                density="compact"
                             />
 
                             <InputError class="mt-2" :message="form.errors.description" />
@@ -118,6 +135,7 @@ const chooseCategory = () => {
                                 autocomplete="price"
                                 required
                                 step="0.01"
+                                density="compact"
                             />
 
                             <InputError class="mt-2" :message="form.errors.price" />
@@ -132,6 +150,7 @@ const chooseCategory = () => {
                                 v-model="form.quantity"
                                 autocomplete="quantity"
                                 required
+                                density="compact"
                             />
 
                             <InputError class="mt-2" :message="form.errors.quantity" />
@@ -140,25 +159,28 @@ const chooseCategory = () => {
                             <div>Which category?</div>
                             <div>
                                 <v-select
+                                    id="category_id"
                                     class="mt-3"
                                     :items="categories.map(Cat => Cat.name)"
+                                    item-value="{{categories.map(Cat => Cat.id)}}"
                                     v-model="selectedCategory"
-                                    @change="chooseCategory"
                                     persistent-hint
                                     single-line
+                                    return-object
+                                    density="compact"
+                                    multiple
                                 ></v-select>
                             </div>
                         </v-row>
                         <v-row>
                             <InputLabel for="image" value="Image" />
-
                             <v-file-input
                                 id="image"
                                 type="file"
                                 class="mt-1 block w-full"
-                                @input="form.image = $event.target.files[0]"
+                                @change="uploadPhoto($event.target.files[0])"
+                                density="compact"
                             />
-
                             <InputError class="mt-2" :message="form.errors.image" />
                         </v-row>
                     </v-container>
@@ -176,6 +198,7 @@ const chooseCategory = () => {
                         color="blue-darken-1"
                         variant="text"
                         type="submit"
+                        :disabled="form.processing"
                     >
                         Save
                     </v-btn>

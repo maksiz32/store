@@ -20,7 +20,9 @@ return new class extends Migration
                 ->on('categories');
             $table->foreign('product_id')
                 ->references('id')
-                ->on('products');
+                ->on('products')
+                ->onDelete('no action')
+                ->onUpdate('no action');
         });
     }
 

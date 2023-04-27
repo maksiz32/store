@@ -7,12 +7,12 @@ import TextInput from '@/Components/TextInput.vue';
 
 let dialog = ref(false);
 const storeId = usePage().props.auth.user.id;
-const emit = defineEmits(['addCatSuccess']);
+const emit = defineEmits(['eventSuccess']);
 const form = useForm({
     name: '',
     description: '',
     store_id: storeId,
-    is_show_nav: 1,
+    is_show_nav: true,
 });
 
 const closeModal = () => {
@@ -21,11 +21,14 @@ const closeModal = () => {
 };
 
 const submit = () => {
-    form.post(route('add.category'), {
+    form.post(route('categories.add'), {
         onSuccess: () => {
-            emit('addCatSuccess', `Category was created`);
+            emit('eventSuccess', `Category was created`);
             form.reset('name', 'description');
             dialog.value = false;
+        },
+        onError: (error) => {
+            console.warn(error);
         },
     });
 };
@@ -84,20 +87,13 @@ const submit = () => {
                             <InputError class="mt-2" :message="form.errors.description" />
                         </v-row>
                         <v-row class="flex-column">
-                            <div>Show in Navbar?</div>
                             <div>
-                                <v-select
-                                    class="mt-3"
-                                    :items="[
-                                            {state: 'Yes', abbr: 1},
-                                            {state: 'No', abbr: 0}
-                                        ]"
-                                    item-title="state"
-                                    item-value="abbr"
+                                <v-switch
+                                    label="Show in Navbar?"
+                                    inset
+                                    color="primary"
                                     v-model="form.is_show_nav"
-                                    persistent-hint
-                                    single-line
-                                ></v-select>
+                                ></v-switch>
                             </div>
                         </v-row>
                     </v-container>
@@ -111,6 +107,7 @@ const submit = () => {
                     >
                         Close
                     </v-btn>
+                    <v-spacer></v-spacer>
                     <v-btn
                         @click.prevent="submit"
                         color="blue-darken-1"

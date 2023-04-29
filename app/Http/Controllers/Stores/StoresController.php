@@ -16,7 +16,7 @@ class StoresController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('isOwner')->except(['index', 'chooseStore']);
+        $this->middleware('isOwner')->only(['show']);
     }
 
     public function index(): Response
@@ -54,5 +54,35 @@ class StoresController extends Controller
             'products' => $products,
             'categories' => Category::where('store_id', $store->store_id)->get(),
         ]);
+    }
+
+    public function updateActive(Store $store): RedirectResponse
+    {
+        $store->update(['is_active' => !(bool) $store->is_active]);
+
+        return back();
+    }
+
+    public function destroy(Store $store): RedirectResponse
+    {
+        // If need also to delete store owner
+//        if ($store->client()) {
+//            $store->client()->delete();
+//        }
+
+        $store->delete();
+
+        return back();
+    }
+
+    public function clearStore(Store $store): RedirectResponse
+    {
+        foreach ($store->products as $product) {
+            $product->categories()->detach();
+        }
+        $store->products()->delete();
+        $store->categories()->delete();
+
+        return back();
     }
 }

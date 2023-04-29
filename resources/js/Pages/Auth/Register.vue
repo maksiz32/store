@@ -27,12 +27,12 @@ const form = useForm({
     password: '',
     password_confirmation: '',
     users_role_id: 1,
+    store_name: '',
 });
 
 const emit = defineEmits(['closeRegister']);
 
 const submit = () => {
-    console.log(props.isAdminMode, props.isMustAdmin);
     form.transform((data) => ({
         ...data,
         users_role_id: props.isAdminMode ? props.isMustAdmin ? 20 : 10 : 1,
@@ -84,6 +84,20 @@ const submit = () => {
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
+            </div>
+
+            <div class="mt-4" v-if="!isMustAdmin && isAdminMode">
+                <InputLabel for="store_name" value="Store name" />
+
+                <TextInput
+                    id="store_name"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.store_name"
+                    autocomplete="store_name"
+                />
+
+                <InputError class="mt-2" :message="form.errors.store_name" />
             </div>
 
             <div class="mt-4">

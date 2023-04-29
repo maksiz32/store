@@ -30,6 +30,8 @@ Route::middleware('isAdmin')->group(function () {
     Route::put('/users/{user}', [UsersController::class, 'update'])->name('user.update');
 
     Route::get('/stores', [StoresController::class, 'index'])->name('admin.stores');
+    Route::delete('/stores/{store}', [StoresController::class, 'destroy'])->name('store.delete');
+    Route::put('/stores/clear/{store}', [StoresController::class, 'clearStore'])->name('store.clear');
 });
 
 //Route::get('/', function () {
@@ -46,6 +48,8 @@ Route::middleware('auth')->group(function () {
     // This route make redirect to user store
     Route::get('/store', [StoresController::class, 'chooseStore'])->name('store');
     Route::get('/store/{client_id}', [StoresController::class, 'show'])->name('store.show');
+
+    Route::put('/stores/active/{store}', [StoresController::class, 'updateActive'])->name('store.active');
 
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.add');
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories');

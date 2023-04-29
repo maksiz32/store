@@ -46,7 +46,7 @@ class StoresController extends Controller
 
         $products = $store->products()
             ->with('categories')
-            ->orderBy('updated_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return Inertia::render('Clients/CRMStores/Store', [

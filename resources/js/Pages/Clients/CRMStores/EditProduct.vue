@@ -64,7 +64,6 @@ const chooseCategory = () => {
 
 const submit = () => {
     let _quantity = parseInt(form.quantity, 10);
-    console.log(typeof photo.value);
     form.transform((data) => ({
         ...data,
         category_id: chooseCategory(),

@@ -27,6 +27,7 @@ Route::middleware('isAdmin')->group(function () {
     Route::get('/users', [UsersController::class, 'index'])->name('admin.users');
     Route::get('/users/create', [UsersController::class, 'createAdmin'])->name('admin.create');
     Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('user.delete');
+    Route::put('/users/{user}', [UsersController::class, 'update'])->name('user.update');
 
     Route::get('/stores', [StoresController::class, 'index'])->name('admin.stores');
 });

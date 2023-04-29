@@ -16,7 +16,7 @@ class UsersController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('Admin/Users/Users', [
+        return Inertia::render('Admin/CRMStores/Users', [
             'users' => User::with(['users_roles', 'store'])->get(),
         ]);
     }

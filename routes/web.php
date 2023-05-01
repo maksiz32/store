@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('category.delete');
     Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit');
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('category.update');
+    Route::patch('/categories/{category}', [CategoryController::class, 'updateActivity'])->name('category.activity');
 
     Route::post('/product', [ProductsController::class, 'store'])->name('product.add');
     Route::put('/product/{product}', [ProductsController::class, 'update'])->name('product.update');

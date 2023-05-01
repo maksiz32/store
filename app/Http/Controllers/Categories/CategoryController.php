@@ -67,4 +67,11 @@ class CategoryController extends Controller
 
         return redirect()->route('categories');
     }
+
+    public function updateActivity(Category $category): RedirectResponse
+    {
+        $category->update(['is_show_nav' => !(bool) $category->is_show_nav]);
+
+        return back();
+    }
 }

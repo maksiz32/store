@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import AddCategories from "@/Components/Categories/AddCategories.vue";
+import AddCategory from "@/Components/Categories/AddCategory.vue";
 import {computed, onUpdated, reactive, ref} from "vue";
 import {Head, useForm, usePage} from '@inertiajs/vue3';
 import AddProducts from "@/Components/Products/AddProducts.vue";
@@ -103,9 +103,6 @@ onMounted(() => {
 onUpdated(() => {
     initFlowbite();
 })
-const attrChangeActiveInfo = computed(() => {
-    return roleId === 20 ? "tooltip-change-activity" : undefined;
-})
 </script>
 
 <template>
@@ -189,7 +186,7 @@ const attrChangeActiveInfo = computed(() => {
                             ></span>
                             <span
                                 v-else
-                                class="flex w-2.5 h-2.5 bg-orange-600 rounded-full mr-1.5 flex-shrink-0"
+                                class="flex w-2.5 h-2.5 bg-gray-600 rounded-full mr-1.5 flex-shrink-0"
                             ></span>
                             {{ category.name }}
                         </span>
@@ -201,7 +198,7 @@ const attrChangeActiveInfo = computed(() => {
                     >
                         <span class="font-medium">No categories</span> in the store.
                     </div>
-                    <AddCategories :store_id="store.store_id" @eventSuccess="eventSuccess" />
+                    <AddCategory :store_id="store.store_id" @eventSuccess="eventSuccess" />
                 </div>
                 <div
                     class="mb-4 py-3 px-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"

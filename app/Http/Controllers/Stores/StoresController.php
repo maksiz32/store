@@ -22,7 +22,7 @@ class StoresController extends Controller
 
     public function index(): Response
     {
-        return Inertia::render('Admin/CRMStores/AllStores', [
+        return Inertia::render('CRM/Admins/AllStores', [
             'stores' => Store::with(['client', 'products'])->get(),
         ]);
     }
@@ -55,7 +55,7 @@ class StoresController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return Inertia::render('Clients/CRMStores/Store', [
+        return Inertia::render('CRM/Clients/Store', [
             'store' => $store,
             'products' => $products,
             'categories' => Category::where('store_id', $store->store_id)->get(),

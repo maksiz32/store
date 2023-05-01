@@ -14,7 +14,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Clients/CRMStores/Categories', [
+        return Inertia::render('CRM/Clients/Categories', [
             'categories' => Category::where('store_id', Auth::id())->get(),
         ]);
     }

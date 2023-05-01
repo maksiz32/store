@@ -34,8 +34,8 @@ const submit = () => {
             form.reset();
             dialog.value = false;
         },
-        onError: () => {
-            //
+        onError: (error) => {
+            form.errors = error;
         },
     });
 };

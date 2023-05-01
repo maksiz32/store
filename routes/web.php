@@ -27,8 +27,11 @@ Route::middleware('isAdmin')->group(function () {
     Route::get('/users', [UsersController::class, 'index'])->name('admin.users');
     Route::get('/users/create', [UsersController::class, 'createAdmin'])->name('admin.create');
     Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('user.delete');
+    Route::put('/users/{user}', [UsersController::class, 'update'])->name('user.update');
 
     Route::get('/stores', [StoresController::class, 'index'])->name('admin.stores');
+    Route::delete('/stores/{store}', [StoresController::class, 'destroy'])->name('store.delete');
+    Route::put('/stores/clear/{store}', [StoresController::class, 'clearStore'])->name('store.clear');
 });
 
 //Route::get('/', function () {
@@ -45,17 +48,24 @@ Route::middleware('auth')->group(function () {
     // This route make redirect to user store
     Route::get('/store', [StoresController::class, 'chooseStore'])->name('store');
     Route::get('/store/{client_id}', [StoresController::class, 'show'])->name('store.show');
+    Route::put('/store/{store_id}', [StoresController::class, 'update'])->name('store.update');
+
+    Route::put('/stores/active/{store}', [StoresController::class, 'updateActive'])->name('store.active');
 
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.add');
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('category.delete');
     Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit');
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('category.update');
+    Route::patch('/categories/{category}', [CategoryController::class, 'updateActivity'])->name('category.activity');
 
     Route::post('/product', [ProductsController::class, 'store'])->name('product.add');
     Route::put('/product/{product}', [ProductsController::class, 'update'])->name('product.update');
     Route::post('/product/{product}', [ProductsController::class, 'imageDestroy'])->name('product.image-destroy');
     Route::delete('/product/{product}', [ProductsController::class, 'destroy'])->name('product.delete');
+
+    Route::get('/products', [ProductsController::class, 'index'])->name('products');
+
     Route::get('/store/{client_id}/{category_id?}/{product_id}', [ProductsController::class, 'show'])
         ->name('product.show');
 });

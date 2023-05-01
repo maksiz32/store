@@ -90,8 +90,9 @@ export default {
                                     </template>
 
                                     <template #content>
+                                        <DropdownLink :href="route('store')"> Store Info Page </DropdownLink>
                                         <DropdownLink :href="route('categories')"> Edit Categories </DropdownLink>
-                                        <DropdownLink :href="route('store')"> Edit Products </DropdownLink>
+                                        <DropdownLink :href="route('products')"> Edit Products </DropdownLink>
                                         <DropdownLink
                                             v-if="isAdmin"
                                             :href="route('admin.users')"

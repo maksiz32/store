@@ -14,7 +14,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Clients/CRMStores/Categories', [
+        return Inertia::render('CRM/Clients/Categories', [
             'categories' => Category::where('store_id', Auth::id())->get(),
         ]);
     }
@@ -66,5 +66,12 @@ class CategoryController extends Controller
         $category->delete();
 
         return redirect()->route('categories');
+    }
+
+    public function updateActivity(Category $category): RedirectResponse
+    {
+        $category->update(['is_show_nav' => !(bool) $category->is_show_nav]);
+
+        return back();
     }
 }

@@ -33,7 +33,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $isAdminUserRole = Auth::user() && Auth::user()->users_role_id === UsersRoles::USER_ROLES['Admin'];
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'users_role_id' => ['required', 'integer', Rule::in([
                     UsersRoles::USER_ROLES['Customer'],
@@ -42,20 +42,21 @@ class RegisteredUserController extends Controller
                 ])],
             'email' => 'required|string|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'store_name' => 'sometimes|nullable|string|max:255',
         ]);
 
         /** @var User $user */
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'users_role_id' => $request->users_role_id,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'users_role_id' => $validated['users_role_id'],
         ]);
 
         if ($isAdminUserRole && $user && $user->users_role_id === UsersRoles::USER_ROLES['Client']) {
             $store = new Store([
-                 'name_store' => 'New created Store',
-                 'description' => 'Store was created as empty Store. Please change Name and Description',
+                 'name_store' => $validated['store_name'] ?: 'New created Store',
+                 'description' => 'Store was created as empty Store. You can change Name and Description',
             ]);
              $user->store()->save($store);
         }

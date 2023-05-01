@@ -5,15 +5,18 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import {Link} from "@inertiajs/vue3";
+import Footer from "@/Components/Footer.vue";
 
 export default {
     components: {
+        Footer,
         ApplicationLogo, Dropdown, DropdownLink, NavLink, ResponsiveNavLink, Link
     },
     data() {
         return {
             isAuth: !!this.$page.props.auth.user,
             isAdmin: this.$page.props.auth.user ? this.$page.props.auth.user.users_role_id === 20 : false,
+            isClient: this.$page.props.auth.user ? this.$page.props.auth.user.users_role_id === 1 : false,
             showingNavigationDropdown: false,
         }
     },
@@ -43,7 +46,7 @@ export default {
                                 class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"
                                 v-if="isAuth"
                             >
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                                <NavLink :href="route('start.page')" :active="route().current('start.page')">
                                     Dashboard
                                 </NavLink>
                             </div>
@@ -53,8 +56,8 @@ export default {
                                 v-if="isAuth"
                             >
                                 <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
+                                    :href="route('start.page')"
+                                    :active="route().current(category.name)"
                                 >
                                     {{ category.name }}
                                 </NavLink>
@@ -64,7 +67,7 @@ export default {
 
                         <div class="hidden sm:flex sm:items-center sm:ml-6" v-if="!isAdmin && isAuth">
                             <!-- Store -->
-                            <div class="ml-3 relative">
+                            <div class="ml-3 relative" v-if="!isClient">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
@@ -201,7 +204,7 @@ export default {
                     v-if="isAuth"
                 >
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                        <ResponsiveNavLink :href="route('start.page')" :active="route().current('start.page')">
                             Dashboard
                         </ResponsiveNavLink>
                     </div>
@@ -238,4 +241,5 @@ export default {
             </main>
         </div>
     </div>
+    <Footer />
 </template>

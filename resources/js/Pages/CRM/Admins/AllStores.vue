@@ -1,13 +1,14 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import {reactive, ref} from "vue";
+import {computed, reactive, ref} from "vue";
 import Notification from "@/Components/Notification.vue";
 import Modal from '@/Components/Modal.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { onMounted } from 'vue'
 import { initFlowbite } from 'flowbite'
+import EditStoreDescription from "@/Components/Stores/EditStoreDescription.vue";
 
 const props = defineProps(reactive({
     stores: {
@@ -19,6 +20,15 @@ let message = ref('');
 let confirmingStoreEvent = ref(false);
 let storeId = ref(null);
 let eventMessage = ref('');
+let openingEditDescription = ref(false);
+
+const openEditDescription = (id) => {
+    storeId.value = id;
+    openingEditDescription.value = true;
+}
+const closeEditDescription = () => {
+    openingEditDescription.value = false;
+}
 
 const changeVisibleStore = (storeId) => {
     const Store = props.stores.find(store => store.store_id === storeId);
@@ -30,6 +40,7 @@ const changeVisibleStore = (storeId) => {
 }
 
 const eventSuccess = (mes) => {
+    closeEditDescription();
     message.value = mes;
     if (!!mes) {
         modalEvents.value.openNotification();
@@ -81,6 +92,8 @@ const chooseAction = () => {
 onMounted(() => {
     initFlowbite();
 })
+
+const store = computed(() => props.stores.find(Store => Store.store_id === storeId.value));
 </script>
 
 <template>
@@ -141,8 +154,13 @@ onMounted(() => {
                                 {{ store.name_store }}
                             </a>
                         </td>
-                        <td class="px-6 py-4">
-                            {{ store.description }}
+                        <td class="px-6 py-4 cursor-pointer">
+                            <span
+                                @click="openEditDescription(store.store_id)"
+                                data-tooltip-target="tooltip-edit-description"
+                            >
+                                {{ store.description }}
+                            </span>
                         </td>
                         <td class="px-6 py-4">
                             {{ store.client ? store.client.name : '' }}
@@ -152,7 +170,7 @@ onMounted(() => {
                         </td>
                         <td
                             @click="changeVisibleStore(store.store_id)"
-                            class="px-6 py-4 hover:bg-gray-100 store-visibility"
+                            class="px-6 py-4 hover:bg-gray-100 cursor-pointer hover:bg-blue-100"
                             data-tooltip-target="tooltip-default"
                         >
                             <svg
@@ -211,6 +229,10 @@ onMounted(() => {
             Click to see Store's admin page.
             <div data-popper-arrow></div>
         </div>
+        <div id="tooltip-edit-description" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+            Click to change store's description text.
+            <div data-popper-arrow></div>
+        </div>
 
         <Modal :show="confirmingStoreEvent" @close="closeModalStoreEvent">
             <div class="p-6">
@@ -234,12 +256,18 @@ onMounted(() => {
 
         <Notification :message="message" ref="modalEvents" />
 
+        <Modal :show="openingEditDescription">
+            <EditStoreDescription
+                :show="openingEditDescription"
+                :store="store"
+                @closeEditDescription="closeEditDescription"
+                @eventSuccess="eventSuccess"
+            />
+        </Modal>
+
     </AuthenticatedLayout>
 </template>
 
 <style scoped>
-.store-visibility:hover {
-    cursor: pointer;
-    border: 1px solid lightgreen;
-}
+
 </style>

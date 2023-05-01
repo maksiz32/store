@@ -52,9 +52,7 @@ const eventSuccess = (mes) => {
 const closeEditFormStoreName = () => {
     openEditStoreName.value = false;
 };
-const openingEditStoreName = () => {
-    openEditStoreName.value = true;
-};
+
 onMounted(() => {
     initFlowbite();
 })
@@ -73,7 +71,7 @@ onUpdated(() => {
                     class="cursor-pointer text-center mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl dark:text-white"
                 >
                     <span
-                        @click="openingEditStoreName"
+                        @click="openEditStoreName = true"
                         data-tooltip-target="tooltip-change-store-name"
                     >
                         {{ store.name_store }}

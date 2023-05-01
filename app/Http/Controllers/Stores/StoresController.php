@@ -97,6 +97,7 @@ class StoresController extends Controller
         $validated = $request->validate([
             'store_id' => 'required|integer|exists:stores,store_id',
             'name_store' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string|max:255',
         ]);
 
         $store = Store::where('store_id', $validated['store_id'])->first();

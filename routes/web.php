@@ -34,13 +34,7 @@ Route::middleware('isAdmin')->group(function () {
     Route::put('/stores/clear/{store}', [StoresController::class, 'clearStore'])->name('store.clear');
 });
 
-//Route::get('/', function () {
-//    return Inertia::render('Dashboard');
-//})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
-    Route::get('/', [MainController::class, 'index'])->name('dashboard');
-
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -68,6 +62,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/store/{client_id}/{category_id?}/{product_id}', [ProductsController::class, 'show'])
         ->name('product.show');
+
+});
+
+// Customers side
+Route::middleware(['auth', 'isCustomer'])->group(function () {
+    Route::get('/', [MainController::class, 'index'])->name('start.page');
+
+    Route::get('/store/{client_id}', [StoresController::class, 'show'])->name('store.show');
 });
 
 require __DIR__.'/auth.php';

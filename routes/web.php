@@ -63,6 +63,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/product/{product}', [ProductsController::class, 'update'])->name('product.update');
     Route::post('/product/{product}', [ProductsController::class, 'imageDestroy'])->name('product.image-destroy');
     Route::delete('/product/{product}', [ProductsController::class, 'destroy'])->name('product.delete');
+
+    Route::get('/products', [ProductsController::class, 'index'])->name('products');
+
     Route::get('/store/{client_id}/{category_id?}/{product_id}', [ProductsController::class, 'show'])
         ->name('product.show');
 });

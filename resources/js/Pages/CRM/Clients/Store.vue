@@ -1,18 +1,16 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import AddCategory from "@/Components/Categories/AddCategory.vue";
-import {computed, onUpdated, reactive, ref} from "vue";
+import {onUpdated, reactive, ref} from "vue";
 import {Head, useForm, usePage} from '@inertiajs/vue3';
 import AddProducts from "@/Components/Products/AddProducts.vue";
 import Notification from "@/Components/Notification.vue";
 import Modal from '@/Components/Modal.vue';
-import DangerButton from '@/Components/DangerButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import EditProduct from "@/Components/Products/EditProduct.vue";
 import { onMounted } from 'vue';
 import { initFlowbite } from 'flowbite';
 import EditUser from "@/Components/Users/EditUser.vue";
 import EditStoreName from "@/Components/Stores/EditStoreName.vue";
+import ProductsTable from "@/Components/Products/ProductsTable.vue";
 
 const props = defineProps({
     store: reactive({
@@ -29,13 +27,9 @@ const props = defineProps({
 
 let message = ref('');
 const modalEvents = ref(null);
-const confirmingProductDeletion = ref(null);
 const emit = defineEmits(['eventSuccess', 'deleteProductSuccess']);
-let productId = ref(null);
-let openEditFormProduct = ref(false);
 let openEditFormUser = ref(false);
 let openEditStoreName = ref(false);
-let currentProduct = ref({});
 const roleId = usePage().props.auth.user.users_role_id;
 
 const changeVisibleStore = (storeId) => {
@@ -48,48 +42,12 @@ const changeVisibleStore = (storeId) => {
         });
     }
 }
-
-const confirmProductDeletion = (id) => {
-    productId.value = id;
-    confirmingProductDeletion.value = true;
-};
-
-const deleteProduct = () => {
-    const product = props.products.find(Product => Product.id === productId.value);
-    useForm({}).delete(route('product.delete', productId.value), {
-        onSuccess: () => {
-            closeEditFormProduct();
-            eventSuccess(`Product <b>${product.name}</b> was deleted`);
-        }
-    });
-};
-const deleteImage = (productId) => {
-    useForm({}).post(route('product.image-destroy', productId), {
-        onSuccess: () => {
-            eventSuccess('Image deleted');
-        },
-    })
-};
-
-const closeModalProductDelete = () => {
-    productId.value = null;
-    confirmingProductDeletion.value = false;
-};
 const eventSuccess = (mes) => {
-    closeEditFormProduct();
     openEditFormUser.value = false;
     message.value = mes;
     if (!!mes) {
         modalEvents.value.openNotification();
     }
-};
-const openingEditFormProduct = (product) => {
-    currentProduct = product;
-    openEditFormProduct.value = true;
-};
-const closeEditFormProduct = () => {
-    openEditFormProduct.value = false;
-    currentProduct = {};
 };
 const closeEditFormStoreName = () => {
     openEditStoreName.value = false;
@@ -212,88 +170,11 @@ onUpdated(() => {
                         class="flex font-normal text-gray-700 dark:text-gray-400 mb-3"
                         v-if="products.length"
                     >
-                        <v-table
-                            hover
-                            fixed-header
-                        >
-                            <thead>
-                            <tr>
-                                <th class="text-left">
-                                    Image
-                                </th>
-                                <th class="text-left">
-                                    Product Name
-                                </th>
-                                <th class="text-left">
-                                    Description
-                                </th>
-                                <th class="text-left">
-                                    Category
-                                </th>
-                                <th class="text-left">
-                                    Price
-                                </th>
-                                <th class="text-left">
-                                    Quantity
-                                </th>
-                                <th class="text-left">
-                                    Created
-                                </th>
-                                <th class="text-left">
-                                    Actions
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr
-                                v-for="product in products"
-                                :key="product.id"
-                            >
-                                <td>
-                                    <v-img v-show="product.image" :src="product.image" class="store-crm__photo" />
-                                    <v-btn
-                                        v-show="product.image"
-                                        variant="outlined"
-                                        size="x-small"
-                                        color="warning"
-                                        @click="deleteImage(product.id)"
-                                    >
-                                        Delete Image
-                                    </v-btn>
-                                </td>
-                                <td>{{ product.name }}</td>
-                                <td>{{ product.description }}</td>
-                                <td>
-                        <span
-                            v-if="product.categories.length"
-                            v-for="category in product.categories"
-                        >{{category.name}}<br /></span>
-                                    <span v-else></span>
-                                </td>
-                                <td>{{ product.price }}</td>
-                                <td>{{ product.quantity }}</td>
-                                <td>{{ new Date(product.created_at).toLocaleString() }}</td>
-                                <td>
-                                    <div class="grid">
-                                        <v-btn
-                                            variant="outlined"
-                                            size="x-small"
-                                            @click="openingEditFormProduct(product)"
-                                        >
-                                            Edit product
-                                        </v-btn>
-                                        <v-btn
-                                            variant="outlined"
-                                            size="x-small"
-                                            @click="confirmProductDeletion(product.id)"
-                                        >
-                                            Delete Product
-                                        </v-btn>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </v-table>
+                        <ProductsTable
+                            @eventSuccess="eventSuccess"
+                            :products="products"
+                            :categories="categories"
+                        />
                     </div>
                     <div
                         v-else
@@ -334,41 +215,11 @@ onUpdated(() => {
         <div data-popper-arrow></div>
     </div>
 
-    <Modal :show="confirmingProductDeletion" @close="closeModalProductDelete">
-        <div class="p-6">
-            <h2 class="text-lg font-medium text-gray-900">
-                Are you sure you want to delete this product?
-            </h2>
-            <p class="mt-1 text-sm text-gray-600">
-                This action is irreversible.
-            </p>
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModalProductDelete"> Cancel </SecondaryButton>
-                <DangerButton
-                    class="ml-3"
-                    @click="deleteProduct"
-                >
-                    Delete Product
-                </DangerButton>
-            </div>
-        </div>
-    </Modal>
-
     <Modal :show="openEditStoreName">
         <EditStoreName
             :show="openEditStoreName"
             :store="store"
             @closeEditFormStoreName="closeEditFormStoreName"
-            @eventSuccess="eventSuccess"
-        />
-    </Modal>
-
-    <Modal :show="openEditFormProduct">
-        <EditProduct
-            :show="openEditFormProduct"
-            :categories="categories"
-            :product="currentProduct"
-            @closeEditForm="closeEditFormProduct"
             @eventSuccess="eventSuccess"
         />
     </Modal>
@@ -384,7 +235,5 @@ onUpdated(() => {
 </template>
 
 <style scoped>
-.store-crm__photo {
-    max-height: 80px;
-}
+
 </style>

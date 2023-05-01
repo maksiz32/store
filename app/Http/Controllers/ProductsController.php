@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\CategoriesProducts;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Store;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class ProductsController extends Controller
 {
@@ -15,15 +19,18 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $id = Auth::id();
+        /** @var User $client */
+        $client = User::where('id', $id)->first();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return Inertia::render('CRM/Clients/Products', [
+            'store' => Store::where('store_id', $id),
+            'products' => $client->storeProducts()
+                ->with('categories')
+                ->orderBy('created_at', 'desc')
+                ->get(),
+            'categories' => $client->categories,
+        ]);
     }
 
     /**

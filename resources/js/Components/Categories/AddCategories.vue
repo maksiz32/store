@@ -1,17 +1,22 @@
 <script setup>
-import {ref} from "vue";
+import {defineProps, ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 
 let dialog = ref(false);
-const storeId = usePage().props.auth.user.id;
+const props = defineProps({
+    store_id: {
+        type: Number,
+        default: null,
+    }
+});
 const emit = defineEmits(['eventSuccess']);
 const form = useForm({
     name: '',
     description: '',
-    store_id: storeId,
+    store_id: props.store_id,
     is_show_nav: true,
 });
 
@@ -28,7 +33,7 @@ const submit = () => {
             dialog.value = false;
         },
         onError: (error) => {
-            console.warn(error);
+            form.errors = error;
         },
     });
 };
@@ -42,12 +47,22 @@ const submit = () => {
             width="1024"
         >
             <template v-slot:activator="{ props }">
-                <v-btn
-                    color="primary"
+                <button
+                    type="button"
                     v-bind="props"
+                    class="text-uppercase text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center inline-flex items-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
-                    Add Product's Categories
-                </v-btn>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-6 h-6 pr-1"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                    </svg>
+                    Add Categories
+                </button>
             </template>
             <form>
             <v-card>
@@ -56,21 +71,21 @@ const submit = () => {
                 </v-card-title>
                 <v-card-text>
                     <v-container>
-                        <input hidden value="{{ storeId }}" name="store_id">
+                        <input hidden value="{{ store_id }}" name="store_id">
                         <v-row>
-                                <InputLabel for="name" value="Full name" />
+                            <InputLabel for="name" value="Full name" />
 
-                                <TextInput
-                                    id="name"
-                                    type="text"
-                                    class="mt-1 block w-full"
-                                    v-model="form.name"
-                                    required
-                                    autofocus
-                                    autocomplete="name"
-                                />
+                            <TextInput
+                                id="name"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.name"
+                                required
+                                autofocus
+                                autocomplete="name"
+                            />
 
-                                <InputError class="mt-2" :message="form.errors.name" />
+                            <InputError class="mt-2" :message="form.errors.name" />
                         </v-row>
                         <v-row>
 
@@ -107,7 +122,6 @@ const submit = () => {
                     >
                         Close
                     </v-btn>
-                    <v-spacer></v-spacer>
                     <v-btn
                         @click.prevent="submit"
                         color="blue-darken-1"

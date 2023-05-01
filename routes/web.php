@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     // This route make redirect to user store
     Route::get('/store', [StoresController::class, 'chooseStore'])->name('store');
     Route::get('/store/{client_id}', [StoresController::class, 'show'])->name('store.show');
+    Route::put('/store/{store_id}', [StoresController::class, 'update'])->name('store.update');
 
     Route::put('/stores/active/{store}', [StoresController::class, 'updateActive'])->name('store.active');
 

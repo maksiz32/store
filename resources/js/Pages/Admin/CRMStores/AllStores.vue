@@ -26,9 +26,6 @@ const changeVisibleStore = (storeId) => {
         onSuccess: () => {
             eventSuccess(`Store <strong>"${Store.name_store}"</strong> was updated`);
         },
-        onError: (error) => {
-            console.warn(error);
-        },
     });
 }
 
@@ -127,10 +124,22 @@ onMounted(() => {
                         :key="store.id"
                     >
                         <th class="px-6 py-4">
-                            {{ store.store_id }}
+                            <a
+                                :href="route('store.show', store.store_id)"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                data-tooltip-target="tooltip-show-store"
+                            >
+                                {{ store.store_id }}
+                            </a>
                         </th>
                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {{ store.name_store }}
+                            <a
+                                :href="route('store.show', store.store_id)"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                data-tooltip-target="tooltip-show-store"
+                            >
+                                {{ store.name_store }}
+                            </a>
                         </td>
                         <td class="px-6 py-4">
                             {{ store.description }}
@@ -144,7 +153,6 @@ onMounted(() => {
                         <td
                             @click="changeVisibleStore(store.store_id)"
                             class="px-6 py-4 hover:bg-gray-100 store-visibility"
-                            title="Change visibility"
                             data-tooltip-target="tooltip-default"
                         >
                             <svg
@@ -197,6 +205,10 @@ onMounted(() => {
 
         <div id="tooltip-default" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
             Click on icon to change store availability.
+            <div data-popper-arrow></div>
+        </div>
+        <div id="tooltip-show-store" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+            Click to see Store's admin page.
             <div data-popper-arrow></div>
         </div>
 

@@ -1,17 +1,18 @@
 <script setup>
 import {reactive, ref} from "vue";
-import {Head, useForm} from '@inertiajs/vue3';
+import {Head, useForm, usePage} from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import AddCategories from "@/Pages/Clients/CRMStores/AddCategories.vue";
+import AddCategories from "@/Components/Categories/AddCategories.vue";
 import Notification from "@/Components/Notification.vue";
 import Modal from '@/Components/Modal.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import EditCategory from "@/Pages/Clients/CRMStores/EditCategory.vue";
+import EditCategory from "@/Components/Categories/EditCategory.vue";
 
 const props = defineProps({
     categories: Object,
 })
+const storeId = usePage().props.auth.user.id;
 const modalEvents = ref(null);
 const categoryId = ref(null);
 const confirmingCategoryDeletion = ref(null);
@@ -67,7 +68,7 @@ const eventSuccess = (mes) => {
 
     <AuthenticatedLayout>
         <section class="flex justify-space-around">
-            <AddCategories @eventSuccess="eventSuccess" />
+            <AddCategories :store_id="storeId" @eventSuccess="eventSuccess" />
         </section>
         <v-table
             hover

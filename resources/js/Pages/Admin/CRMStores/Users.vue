@@ -7,7 +7,7 @@ import Modal from '@/Components/Modal.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import Notification from "@/Components/Notification.vue";
-import EditUser from "@/Pages/Clients/CRMStores/EditUser.vue";
+import EditUser from "@/Components/Users/EditUser.vue";
 
 const props = defineProps(reactive({
     users: {

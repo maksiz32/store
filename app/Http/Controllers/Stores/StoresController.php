@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Store;
 use App\Models\User;
+use App\Models\UsersRole;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,13 +40,18 @@ class StoresController extends Controller
     public function show(int $id): Response|RedirectResponse
     {
         /** @var Store $store */
-        $store = Store::with('categories')->where('store_id', $id)->first();
+        $store = Store::with(['categories', 'client'])->where('store_id', $id)->first();
         if (!$store) {
             return redirect()->route('dashboard');
         }
+        $userRoleName = UsersRole::where('id', $store->client->users_role_id)->first();
+        $store->client['users_roles'] = $userRoleName;
 
         $products = $store->products()
-            ->with('categories')
+            ->with(['categories' => function ($query) {
+                    $query->orderBy('name', 'desc');
+                }
+            ])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -82,6 +88,20 @@ class StoresController extends Controller
         }
         $store->products()->delete();
         $store->categories()->delete();
+
+        return back();
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'store_id' => 'required|integer|exists:stores,store_id',
+            'name_store' => 'sometimes|string|max:255',
+        ]);
+
+        $store = Store::where('store_id', $validated['store_id'])->first();
+        unset($validated['store_id']);
+        $store->update($validated);
 
         return back();
     }

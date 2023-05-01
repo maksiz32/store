@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CategoriesProducts;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,7 +30,7 @@ class ProductsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $price = null;
         $validated = $request->validate([
@@ -39,7 +40,7 @@ class ProductsController extends Controller
             'quantity' => 'integer|gte:0',
             'description' => 'string|nullable',
             'store_id' => 'required|integer|exists:stores,store_id',
-            'category_id' => 'array|nullable',
+            'categories' => 'array|nullable',
         ]);
         if ((int) $validated['price']) {
             $price = ((float) $validated['price']);
@@ -56,27 +57,22 @@ class ProductsController extends Controller
             'store_id' => $validated['store_id'],
         ]);
 
-        $categories = Category::query()->whereIn('name', $validated['category_id'])->get();
+        if ($validated['categories']) {
+            $categoriesNames = array_column($validated['categories'], 'name');
+            $categories = Category::query()->whereIn('name', $categoriesNames)->get();
 
-        foreach ($categories as $category) {
-            $product->categories()->attach($category->id);
+            foreach ($categories as $category) {
+                $product->categories()->attach($category->id);
+            }
         }
 
-        return redirect()->route('store');
+        return back();
     }
 
     /**
      * Display the specified resource.
      */
     public function show(Product $product)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
     {
         //
     }
@@ -92,7 +88,7 @@ class ProductsController extends Controller
             'price' => 'numeric|gte:0',
             'quantity' => 'integer|gte:0',
             'description' => 'string|nullable',
-            'category_id' => 'array|nullable',
+            'categories' => 'array|nullable',
         ]);
 
         $product->update($validated);
@@ -100,8 +96,9 @@ class ProductsController extends Controller
         // Надо удалить те связи с категориями, которых нет в $validated['category_id']
         CategoriesProducts::where('product_id', $product->id)->delete();
 
-        if ($validated['category_id']) {
-            $categories = Category::query()->whereIn('name', $validated['category_id'])->get();
+        if ($validated['categories']) {
+            $categoriesNames = array_column($validated['categories'], 'name');
+            $categories = Category::query()->whereIn('name', $categoriesNames)->get();
 
             foreach ($categories as $category) {
                 $product->categories()->attach($category->id);
@@ -131,6 +128,6 @@ class ProductsController extends Controller
         }
         $product->delete();
 
-        return redirect()->route('store');
+        return back();
     }
 }

@@ -1,5 +1,5 @@
 <script setup>
-import {ref, watch} from "vue";
+import {ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -28,6 +28,7 @@ const form = useForm({
     quantity: props.product.quantity.toString(),
     store_id: props.product.store_id,
     image: '',
+    categories: props.product.categories.map(Cat => Cat.id),
 });
 const storeId = usePage().props.auth.user.id;
 const emit = defineEmits(['eventSuccess', 'closeEditForm']);
@@ -42,21 +43,14 @@ const uploadPhoto = (data) => {
     };
 };
 
-const chooseCats = () => {
-    if (props.product.categories.length) {
-        return props.product.categories.map(Cat => {
-            const category = props.categories.find(cats => cats.id === Cat.id);
-            return category.name;
-        });
-    }
-}
-let selectedCategory = ref(['']);
-
-const chooseCategory = () => {
-    if (selectedCategory.value.length) {
-        const category = props.categories.find(Cat => Cat.name === selectedCategory.value);
-        if (category) {
-            return category.id;
+const chooseCategory = (selectCategoriesIds) => {
+    let category = [];
+    if (selectCategoriesIds.length) {
+        selectCategoriesIds.map(selectedCat => {
+            category.push(props.categories.find(Cat => Cat.id === parseInt(selectedCat, 10)));
+        })
+        if (category.length) {
+            return category;
         }
     }
     return null;
@@ -66,32 +60,22 @@ const submit = () => {
     let _quantity = parseInt(form.quantity, 10);
     form.transform((data) => ({
         ...data,
-        category_id: chooseCategory(),
+        categories: chooseCategory(form.categories),
         description: data.description || '',
         image: photo.value,
         quantity: _quantity < 0 ? 0 : _quantity,
     })).put(route('product.update', props.product.id), {
             onSuccess: () => {
                 form.reset();
-                selectedCategory.value = [];
                 emit('eventSuccess', `Product was updated`);
                 dialog.value = false;
             },
             onError: (error) => {
-                console.warn(error);
+                form.errors = error;
             },
         }
     );
 }
-watch(selectedCategory, () => {
-    if (selectedCategory.value.length) {
-        if (selectedCategory.value[0] === '') {
-            selectedCategory.value.splice(0, 1);
-        }
-    } else {
-        selectedCategory.value[0] = '';
-    }
-})
 </script>
 <template>
     <teleport to="body">
@@ -166,22 +150,29 @@ watch(selectedCategory, () => {
                                 <InputError class="mt-2" :message="form.errors.quantity" />
                             </v-row>
                             <v-row class="flex-column">
-                                <div>Which category?</div>
                                 <div>
-                                    <v-select
+                                    <label
+                                        for="category_id"
+                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                    >
+                                        Which category?
+                                        &nbsp<small>(You can select multiple options by holding down <kbd class="px-1 py-1 font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">Ctrl</kbd>)</small>
+                                    </label>
+                                    <select
                                         id="category_id"
-                                        class="mt-3"
-                                        :items="categories.map(Cat => Cat.name)"
-                                        item-value="{{categories.map(Cat => Cat.id)}}"
-                                        v-model="selectedCategory"
-                                        @change="chooseCategory"
-                                        persistent-hint
-                                        single-line
-                                        return-object
-                                        density="compact"
                                         multiple
-                                    ></v-select>
+                                        v-model="form.categories"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    >
+                                        <option
+                                            v-for="category in categories"
+                                            :value="category.id"
+                                        >
+                                            {{category.name}}
+                                        </option>
+                                    </select>
                                 </div>
+
                             </v-row>
                             <v-row>
                                 <v-col cols="2">
@@ -191,15 +182,26 @@ watch(selectedCategory, () => {
                                     />
                                 </v-col>
                                 <v-col cols="10">
-                                    <label>Choose new image if you want to change</label>
-                                    <InputLabel for="image" />
-                                    <v-file-input
+                                    <label
+                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                        for="image"
+                                    >
+                                        Choose new image if you want to change
+                                    </label>
+                                    <input
+                                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                                        aria-describedby="file_input_help"
                                         id="image"
                                         type="file"
-                                        class="mt-1 block w-full"
                                         @change="uploadPhoto($event.target.files[0])"
-                                        density="compact"
-                                    />
+                                    >
+                                    <p
+                                        class="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                        id="file_input_help"
+                                    >
+                                        PNG or JPG.
+                                    </p>
+
                                     <InputError class="mt-2" :message="form.errors.image" />
                                 </v-col>
                             </v-row>

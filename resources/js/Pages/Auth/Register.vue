@@ -37,6 +37,9 @@ const submit = () => {
         ...data,
         users_role_id: props.isAdminMode ? props.isMustAdmin ? 20 : 10 : 1,
     })).post(route('register'), {
+        onError: (error) => {
+            form.errors = error;
+        },
         onFinish: () => {
             form.reset();
             if (props.closable) {

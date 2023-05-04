@@ -23,15 +23,12 @@ let openEditFormUser = ref(false);
 let message = ref('');
 
 const eventSuccess = (mes) => {
-    // closeEditFormProduct();
     openEditFormUser.value = false;
     message.value = mes;
     if (!!mes) {
         modalEvents.value.openNotification();
     }
 };
-
-
 </script>
 
 <template>

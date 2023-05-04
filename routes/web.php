@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\Categories\CategoryController;
 use App\Http\Controllers\MainController;
-use App\Http\Controllers\ProductsController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Orders\OrdersController;
+use App\Http\Controllers\Products\ProductsController;
+use App\Http\Controllers\Users\ProfileController;
 use App\Http\Controllers\Stores\StoresController;
 use App\Http\Controllers\Users\UsersController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -41,8 +41,8 @@ Route::middleware('auth')->group(function () {
 
     // This route make redirect to user store
     Route::get('/store', [StoresController::class, 'chooseStore'])->name('store');
-    Route::get('/store/{client_id}', [StoresController::class, 'show'])->name('store.show');
-    Route::put('/store/{store_id}', [StoresController::class, 'update'])->name('store.update');
+    Route::get('/stores/{client_id}', [StoresController::class, 'show'])->name('store.show');
+    Route::put('/stores/{store_id}', [StoresController::class, 'update'])->name('store.update');
 
     Route::put('/stores/active/{store}', [StoresController::class, 'updateActive'])->name('store.active');
 
@@ -60,16 +60,32 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/products', [ProductsController::class, 'index'])->name('products');
 
-    Route::get('/store/{client_id}/{category_id?}/{product_id}', [ProductsController::class, 'show'])
-        ->name('product.show');
-
+    Route::get('/orders', function () {
+        if (Auth::id()) {
+            return Inertia::render('CRM/Clients/OrdersList');
+        }
+    })->name('orders.list');
+    Route::get('/orders/{order_id}', function () {
+        if (Auth::id()) {
+            return Inertia::render('CRM/Clients/Order');
+        }
+    })->name('order');
 });
 
 // Customers side
 Route::middleware(['auth', 'isCustomer'])->group(function () {
     Route::get('/', [MainController::class, 'index'])->name('start.page');
 
-    Route::get('/store/{client_id}', [StoresController::class, 'show'])->name('store.show');
+    Route::get('/store/{client_id}', [StoresController::class, 'shopByCategoryShow'])->name('shop.category');
+    Route::get('/store/{client_id}/{category_id}', [StoresController::class, 'shopShow'])->name('shop.show');
+
+    Route::get('/store/{client_id}/{category_id?}/{product_id}', [ProductsController::class, 'show'])
+        ->name('product.show');
+    Route::get('/product/{product_id}', [ProductsController::class, 'showShort'])
+        ->name('product-short.show');
+
+    Route::get('/order', [OrdersController::class, 'index'])->name('order.index');
+    Route::post('/order', [OrdersController::class, 'store'])->name('order.add');
 });
 
 require __DIR__.'/auth.php';

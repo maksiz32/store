@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Products;
 
+use App\Http\Controllers\Controller;
 use App\Models\CategoriesProducts;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -78,9 +80,17 @@ class ProductsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show(?int $clientId, ?int $categoryId, int $productId)
     {
-        //
+        $product = Product::with(['images', 'categories', 'store'])->where('id', $productId)->first();
+
+
+        return Inertia::render('Shops/Product', ['product' => $product]);
+    }
+
+    public function showShort(int $productId)
+    {
+        return $this->show(null, null, $productId);
     }
 
     /**
@@ -135,5 +145,31 @@ class ProductsController extends Controller
         $product->delete();
 
         return back();
+    }
+
+    public function getProductsByCategory(int $storeId, int $categoryId): JsonResponse
+    {
+        /** @var Store $store */
+        $store = Store::where('store_id', $storeId)
+            ->with(['products' => function ($query) {
+                    $query->orderBy('created_at', 'desc');
+                }
+            ])
+            ->first();
+
+        if ($categoryId > 0) {
+            /** @var Category $category */
+            $category = Category::where('categories.id', $categoryId)
+                ->with(['products' => function ($query) {
+                        $query->orderBy('created_at', 'desc');
+                    }
+                ])
+                ->first();
+            $products = $category->products;
+        } else {
+            $products = $store->products;
+        }
+
+        return response()->json(['products' => $products]);
     }
 }

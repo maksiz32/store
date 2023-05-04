@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Stores;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\Store;
-use App\Models\User;
 use App\Models\UsersRole;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -97,6 +97,7 @@ class StoresController extends Controller
         $validated = $request->validate([
             'store_id' => 'required|integer|exists:stores,store_id',
             'name_store' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string|max:255',
         ]);
 
         $store = Store::where('store_id', $validated['store_id'])->first();
@@ -104,5 +105,51 @@ class StoresController extends Controller
         $store->update($validated);
 
         return back();
+    }
+
+    public function shopByCategoryShow($storeId)
+    {
+        $storeId = (int) $storeId;
+        /** @var Store $store */
+        $store = Store::where('store_id', $storeId)->
+            with(['categories' => function ($query) {
+                $query->with(['products'])->where('is_show_nav', true);
+            }
+        ])->first();
+
+        return Inertia::render('Shops/ShopByCategories', [
+            'store' => $store,
+        ]);
+    }
+
+    public function shopShow($storeId, $categoryId)
+    {
+        $storeId = (int) $storeId;
+        $categoryId = (int) $categoryId;
+        /** @var Store $store */
+        $store = Store::with(['categories'])->where('store_id', $storeId)->first();
+        /** @var Category $category */
+        $category = Category::with(['products' => function ($query) {
+                $query->orderBy('created_at', 'desc');
+            }
+        ])->where('id', $categoryId)->first();
+
+        if (!$store || !$category) {
+            return redirect(route('start.page', ['errorMessage' => 'Invalid request.']));
+        }
+
+        return Inertia::render('Shops/Shop', [
+            'categories' => $store->categories()->where('is_show_nav', true)->get(),
+            'products' => $category->products,
+            'shop' => $store,
+            'category_id' => $category->id,
+        ]);
+    }
+
+    public function getStoreIdByProduct($productId)
+    {
+        $product = Product::with(['store'])->where('id', $productId)->first();
+
+        return response()->json(['id' => $product->store->store_id]);
     }
 }

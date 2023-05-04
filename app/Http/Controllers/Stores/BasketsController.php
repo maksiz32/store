@@ -26,7 +26,7 @@ class BasketsController extends Controller
         return response('Ok');
     }
 
-    public function clearUserBasket($id) {
+    public static function clearUserBasket($id) {
         $id = (int) $id;
         $basket = Basket::find($id);
         $basket->delete();

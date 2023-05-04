@@ -12,5 +12,6 @@ class Basket extends Model
     protected $fillable = [
         'user_id',
         'basket',
+        'store_id',
     ];
 }

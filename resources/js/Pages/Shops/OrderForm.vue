@@ -1,6 +1,5 @@
 <script setup>
 import {useForm, usePage} from "@inertiajs/vue3";
-import {store} from "@/store/store";
 import {computed} from "vue";
 import {Head} from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -8,19 +7,16 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 
-const shop_id = computed(() => {
-    let result = null;
-    if (store.basket.length) {
-        result = store.basket[0].store_id;
+const props = defineProps({
+    basket: {
+        type: Array,
     }
-
-    return result;
-});
+})
 
 const totalPrice = computed(() => {
     let total = 0;
-    if (store.basket.length) {
-        store.basket.map(product => {
+    if (props.basket.length) {
+        props.basket.map(product => {
             total += (product.price * product.count)
         });
         total = total !== undefined ? total : 0;
@@ -30,24 +26,16 @@ const totalPrice = computed(() => {
 });
 
 const form = useForm({
-    customer_id: null,
-    shop_id: null,
-    order: store.basket,
+    customer_id: usePage().props.auth.user.id,
+    order: props.basket,
     address: '',
     phone: '',
     description: '',
-    totalPrice: 0,
-    bonus: 1,
+    totalPrice: totalPrice,
 });
 
 const submit = () => {
-    form.transform((data) => ({
-        ...data,
-        customer_id: usePage().props.auth.user.id,
-        shop_id: shop_id,
-        order: store.basket,
-        totalPrice: totalPrice,
-    })).post(route('order.add'), {
+    form.post(route('order.add'), {
         onSuccess: () => {
             form.reset();
         },
@@ -59,6 +47,7 @@ const submit = () => {
 
 const cancellation = () => {
     form.reset();
+    history.back();
 }
 </script>
 

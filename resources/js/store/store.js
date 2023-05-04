@@ -17,6 +17,7 @@ export const store = reactive({
                 count: 1,
                 price: product.price,
                 image: product.image,
+                store_id: product.store_id,
             });
         }
         this.saveBasket();
@@ -57,5 +58,13 @@ export const store = reactive({
     remoteFromBasket(product_id) {
         this.basket = this.basket.filter(product => product.id !== product_id);
         this.saveBasket();
-    }
+    },
+    getTotalCount() {
+        let totalCount = 0;
+        this.basket.map(product => {
+            totalCount += product.count;
+        });
+
+        return totalCount;
+    },
 });

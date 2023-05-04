@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Stores;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\Store;
 use App\Models\UsersRole;
 use Illuminate\Http\RedirectResponse;
@@ -143,5 +144,12 @@ class StoresController extends Controller
             'shop' => $store,
             'category_id' => $category->id,
         ]);
+    }
+
+    public function getStoreIdByProduct($productId)
+    {
+        $product = Product::with(['store'])->where('id', $productId)->first();
+
+        return response()->json(['id' => $product->store->store_id]);
     }
 }

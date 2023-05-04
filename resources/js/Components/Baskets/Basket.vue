@@ -6,9 +6,6 @@ let props = defineProps({
         type: Boolean,
         default: false,
     },
-    shop_id: {
-        type: Number,
-    }
 });
 const emit = defineEmits(['closeBasketModal']);
 

@@ -218,7 +218,7 @@ onMounted(() => store.fetchBasket(usePage().props.auth.user.id));
                             </svg>
                         </a>
                         <span v-if="isCustomer" class="text-red-400">
-                            {{ store.basket.length > 0 ? store.basket.length : '' }}
+                            {{ store.getTotalCount() }}
                         </span>
                     </div>
                 </div>

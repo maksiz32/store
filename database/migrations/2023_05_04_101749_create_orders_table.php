@@ -13,18 +13,19 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('customer_id');
-            $table->string('address', 1000);
-            $table->string('phone', 20);
+            $table->unsignedBigInteger('orders_descriptions_id');
+            $table->unsignedBigInteger('store_id');
             $table->json('order');
-            $table->string('description');
-            $table->integer('totalPrice');
+            $table->integer('total_price');
             $table->integer('bonus')->default(1);
-            $table->tinyInteger('isPayed')->default(false);
+            $table->tinyInteger('is_payed')->default(false);
             $table->timestamps();
-            $table->foreign('customer_id')
+            $table->foreign('orders_descriptions_id')
                 ->references('id')
-                ->on('users');
+                ->on('orders_descriptions');
+            $table->foreign('store_id')
+                ->references('store_id')
+                ->on('stores');
         });
     }
 

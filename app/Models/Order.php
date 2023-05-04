@@ -12,25 +12,22 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'customer_id',
-        'store_id',
-        'address',
-        'phone',
         'order',
-        'description',
-        'totalPrice',
+        'total_price',
         'bonus',
-        'isPayed',
+        'is_payed',
+        'orders_descriptions_id',
+        'store_id',
     ];
-
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'customer_id', 'id');
-    }
 
     public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class, 'store_id', 'store_id');
+    }
+
+    public function ordersDescription(): BelongsTo
+    {
+        return $this->belongsTo(OrdersDescription::class, 'orders_descriptions_id', 'id');
     }
 
     protected function totalPrice(): Attribute
@@ -38,6 +35,14 @@ class Order extends Model
         return Attribute::make(
             get: fn (int $value) => $value / 100,
             set: fn (float $value) => $value * 100,
+        );
+    }
+
+    protected function order(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => json_decode($value),
+            set: fn ($value) => json_encode($value),
         );
     }
 }

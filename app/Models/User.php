@@ -68,9 +68,9 @@ class User extends Authenticatable
         return $this->hasMany(Category::class, 'store_id', 'id');
     }
 
-    public function orders(): HasMany
+    public function ordersDescriptions(): HasMany
     {
-        return $this->hasMany(Order::class, 'customer_id', 'id');
+        return $this->hasMany(OrdersDescription::class, 'customer_id', 'id');
     }
 
     public function categoriesThroughProducts(): HasOneThrough|HasManyThrough

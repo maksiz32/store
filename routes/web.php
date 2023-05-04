@@ -60,16 +60,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/products', [ProductsController::class, 'index'])->name('products');
 
-    Route::get('/orders', function () {
-        if (Auth::id()) {
-            return Inertia::render('CRM/Clients/OrdersList');
-        }
-    })->name('orders.list');
-    Route::get('/orders/{order_id}', function () {
-        if (Auth::id()) {
-            return Inertia::render('CRM/Clients/Order');
-        }
-    })->name('order');
+    Route::get('/orders', [OrdersController::class, 'showOrdersListByStores'])->name('orders.list');
+    Route::get('/orders/{order_id}', [OrdersController::class, 'show'])->name('order.show');
+    Route::patch('/orders/{order_id}', [OrdersController::class, 'paid'])->name('order.paid');
 });
 
 // Customers side
